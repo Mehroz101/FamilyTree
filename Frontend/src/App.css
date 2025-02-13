@@ -1,0 +1,23 @@
+.p-menubar-button{
+    display: none !important;
+}
+.root_layout{
+    display: flex;
+    gap: 20px;
+    height: 100vh;
+}
+.right_components{
+    width: 85%;
+    margin: 0 auto;
+display: flex;
+flex-direction: column;
+gap: 20px;    
+}
+.sidebar_components{
+    height: 100%;
+    background-color: #101A32;
+    color: white;
+}
+.outlet_component{
+    height: 100%;
+}

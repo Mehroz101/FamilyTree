@@ -1,0 +1,26 @@
+.navbar{
+    background-color: #101A32;
+    margin: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 50px;
+    color: white;
+    margin-top: 40px;
+    border-radius: 4px;
+}
+.navbar .profile_box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap:20px;
+}
+.navbar .profile_box img{
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50px;
+}
+.navbar .profile_box .user_name{
+    font-weight: 600;
+    font-size: 16px;
+}
