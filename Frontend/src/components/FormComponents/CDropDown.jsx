@@ -89,7 +89,7 @@ const CDropdown = ({
               pt={{
                 input: {
                   style: {
-                    padding: "0.25rem 0.4rem",
+                    padding: "0.75rem 0.4rem",
                     fontSize: ".9em",
                   },
                 },
