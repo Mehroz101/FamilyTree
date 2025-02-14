@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { FormColumn, FormRow } from '../components/layoutComponent';
 import CDropdown from '../components/FormComponents/CDropDown';
 import CustomTextInput from '../components/FormComponents/CustomTextInput';
 import "../styles/adduser.css";
-import { useMutation } from '@tanstack/react-query';
-import { AddNewUser } from '../services/serviceApi';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { AddNewUser, getUserDropdown } from '../services/serviceApi';
 
 const AddUser = () => {
+    const [userData,setUserData] = useState([]);
     const { control, handleSubmit, setValue } = useForm({
         defaultValues: {
             grandpaID: null,
@@ -32,7 +33,14 @@ const AdduserMutation = useMutation({
         console.log("Submitted Data:", data);
         AdduserMutation.mutate(data)
     };
-
+    const {data} = useQuery({
+        queryKey:["userData"],
+        queryFn:getUserDropdown
+    })
+useEffect(()=>{
+    if(data)
+    setUserData(data?.data)
+},[data])
     return (
         <div className="add_user_page">
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -42,13 +50,12 @@ const AdduserMutation = useMutation({
                         <CDropdown
                             control={control}
                             name="grandpaID"
-                            required={true}
                             label="Grandpa ID"
-                            optionLabel="label"
-                            optionValue="value"
+                            optionLabel="name"
+                            optionValue="userID"
                             placeholder="Select Grandpa ID"
                             onChange={(e) => setValue("grandpaID", e.value)}
-                            options={[{ label: "Grandpa1", value: 1 }, { label: "Grandpa2", value: 2 }]}
+                            options={userData ?? []}
                         />
                     </FormColumn>
                 </FormRow>

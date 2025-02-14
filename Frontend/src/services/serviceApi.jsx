@@ -77,7 +77,32 @@ export const getAllUsers =async (data)=>{
                 Authorization: `Bearer ${token}`,
             },
         }
-        const response =await axios.get(`${url}/user/getallusers`, data,config);
+        const response =await axios.get(`${url}/user/getallusers`,config);
+        if(response.data.success){
+            return response.data
+        }
+        else{
+            return {
+                success:false,
+                message:response.data.message}
+        }
+    } catch (error) {
+        return {
+            success:false,
+            message:error.message
+        }
+    }
+}
+export const getUserDropdown =async (data)=>{
+    try {
+        const token = localStorage.getItem("familytree") ;
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+        console.log(config)
+        const response =await axios.get(`${url}/user/getuserdropdown`,config);
         if(response.data.success){
             return response.data
         }

@@ -1,39 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import CustomTextInput from "../components/FormComponents/CustomTextInput";
 import { FormColumn, FormRow } from "../components/layoutComponent";
 import "../styles/Home.css";
-
-const data = [
-  { id: 1, name: "Mehroz", age: 23, veteran: "No" },
-  { id: 2, name: "Ali", age: 30, veteran: "Yes" },
-  { id: 3, name: "Sara", age: 27, veteran: "No" },
-  { id: 4, name: "Ahmed", age: 35, veteran: "Yes" },
-  { id: 5, name: "Fatima", age: 22, veteran: "No" },
-  { id: 6, name: "Bilal", age: 29, veteran: "Yes" },
-  { id: 7, name: "Ayesha", age: 26, veteran: "No" },
-  { id: 8, name: "Zain", age: 32, veteran: "Yes" },
-  { id: 9, name: "Hassan", age: 28, veteran: "No" },
-  { id: 10, name: "Nida", age: 24, veteran: "Yes" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getAllUsers } from "../services/serviceApi";
 
 const Home = () => {
-  const { control, watch } = useForm({
-    defaultValues: { searchTerm: "" },
-  });
+  const { control, watch } = useForm({ defaultValues: { searchTerm: "" } });
   const searchTerm = watch("searchTerm").toLowerCase();
+  const [userData, setUserData] = useState([]);
+  const [expandedRows, setExpandedRows] = useState({});
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  // Fetch user data
+  const { data: userdata } = useQuery({
+    queryKey: ["userData"],
+    queryFn: getAllUsers,
+  });
 
-  const filteredData = data.filter((item) =>
+  // Load expanded state from localStorage
+  useEffect(() => {
+    const savedExpandedRows = localStorage.getItem("expandedRows");
+    if (savedExpandedRows) {
+      setExpandedRows(JSON.parse(savedExpandedRows));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userdata) {
+          console.log("Fetched Data:", userdata.data); // Debugging output
+
+      setUserData(userdata.data);
+    }
+  }, [userdata]);
+
+  // Toggle row expansion and save state
+  const toggleRow = (id) => {
+    setExpandedRows((prev) => {
+      const newState = { ...prev, [id]: !prev[id] };
+      localStorage.setItem("expandedRows", JSON.stringify(newState));
+      return newState;
+    });
+  };
+
+  // Render rows with expandable functionality
+  const renderRows = (items, level = 0) => {
+    return items.map((item) => (
+      <React.Fragment key={item.id}>
+        <tr>
+          <td>
+            {item?.children && item.children.length > 0 && (
+              <span className="expand_icon" onClick={() => toggleRow(item.id)}>
+                {expandedRows[item.id] ? "▼" : "▶"}
+              </span>
+            )}
+            <span style={{ marginLeft: `${level * 20}px` }}>{item.id}</span>
+          </td>
+          <td>{item.name}</td>
+          <td>{item.age}</td>
+          <td>{item.veteran}</td>
+        </tr>
+        {expandedRows[item.id] && renderRows(item.children, level + 1)}
+      </React.Fragment>
+    ));
+  };
+
+  const filteredData = userData.filter((item) =>
     item.name.toLowerCase().includes(searchTerm)
-  );
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
   );
 
   return (
@@ -56,15 +89,8 @@ const Home = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedData.length > 0 ? (
-                  paginatedData.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.id}</td>
-                      <td>{item.name}</td>
-                      <td>{item.age}</td>
-                      <td>{item.veteran}</td>
-                    </tr>
-                  ))
+                {filteredData.length > 0 ? (
+                  renderRows(filteredData)
                 ) : (
                   <tr>
                     <td colSpan="4" style={{ textAlign: "center" }}>No results found</td>
@@ -73,36 +99,6 @@ const Home = () => {
               </tbody>
             </table>
           </div>
-        </FormRow>
-        <FormRow>
-          <FormColumn>
-            <div className="pagination_container">
-              <div
-                className="left_arrow"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                style={{ cursor: currentPage > 1 ? "pointer" : "not-allowed" }}
-              >
-                &lt;
-              </div>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <div
-                  key={i + 1}
-                  className={`page_${i + 1} ${currentPage === i + 1 ? "active" : ""}`}
-                  onClick={() => setCurrentPage(i + 1)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {i + 1}
-                </div>
-              ))}
-              <div
-                className="right_arrow"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                style={{ cursor: currentPage < totalPages ? "pointer" : "not-allowed" }}
-              >
-                &gt;
-              </div>
-            </div>
-          </FormColumn>
         </FormRow>
       </div>
     </div>
