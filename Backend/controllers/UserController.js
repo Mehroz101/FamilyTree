@@ -1,63 +1,61 @@
 const User = require("../models/User");
 
-const GetUserDetail = async (req, res) => {
+// ✅ Get User Details
+const GetAllUsers = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findById(userId);
-    if (user) {
-      const sendData = {
-        userName: user.username,
-        rollNo: user.rollno ?? "",
-        gender: user.gender,
-        university: user.university ?? "",
-        className: user.className ?? "",
-        classID: user.classID ?? "",
-        password: user.password ?? "",
-      };
-      res.status(200).send({ success: true, message: "", data: sendData });
-    } else {
-      res.status(404).send({ success: false, message: "User not found" });
+    const user = await User.findById(userId).populate("childID"); // If childID is an ObjectId reference
+
+    if (!user) {
+      return res.status(404).send({ success: false, message: "User not found" });
     }
+
+    const sendData = {
+      id: user._id,
+      name: user.userName,
+      age: user.age,
+      veteran: user.veteran,
+      childID: user.childID, // Ensure this exists in schema
+    };
+
+    res.status(200).send({ success: true, message: "", data: sendData });
   } catch (error) {
+    console.error("Error:", error.message);
     res.status(500).send({ success: false, message: error.message });
-    console.log(error);
   }
 };
-const UpdateUserDetail = async (req, res) => {
+
+// ✅ Add New User or Update Grandpa Relation
+const AddUser = async (req, res) => {
   try {
-    console.log(req.body);
-    const userId = req.user.id;
-    const {
-      userName,
-      rollNo,
-      gender,
-      university,
-      password,
-      classID,
-      className,
-    } = req.body;
-    const user = await User.findByIdAndUpdate(userId, {
-      username: userName.trim(),
-      rollno: rollNo.trim(),
-      gender: gender,
-      university: university.trim(),
-      classRoom: className.trim(),
-      classID: classID,
-      password: password,
-    });
-    if (user) {
-      res
-        .status(201)
-        .send({ success: true, message: "update detail successfully" });
-    } else {
-      res.status(401).send({
-        success: true,
-        message: "something wrong while updating detail",
-      });
+    console.log("Received Body:", req.body);
+
+    const { users, grandpaID } = req.body; // Corrected variable name
+
+    // Validate required fields
+    if (!users || !grandpaID) {
+      return res.status(400).send({ success: false, message: "Missing required fields" });
     }
+
+    // Check if the user exists
+    let grandpa = await User.findById(grandpaID);
+
+    if (!grandpa) {
+      return res.status(404).send({ success: false, message: "Grandpa user not found" });
+    }
+
+    // Add new users as children (assuming users is an array of user objects)
+    const newUsers = await User.insertMany(users);
+
+    // Update Grandpa user to reference new children
+    grandpa.childID = [...grandpa.childID, ...newUsers.map(user => user._id)];
+    await grandpa.save();
+
+    res.status(201).send({ success: true, message: "Users added successfully", data: newUsers });
   } catch (error) {
+    console.error("Error:", error.message);
     res.status(500).send({ success: false, message: error.message });
-    console.log(error.message);
   }
 };
-module.exports = { GetUserDetail, UpdateUserDetail };
+
+module.exports = { AddUser, GetAllUsers };

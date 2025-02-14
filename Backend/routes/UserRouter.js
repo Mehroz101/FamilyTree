@@ -2,11 +2,11 @@
 
 const express = require("express");
 const authMiddleware = require("../middleware/AuthMiddleware");
-const { GetUserDetail,UpdateUserDetail } = require("../controllers/UserController");
+const { GetAllUsers,AddUser } = require("../controllers/UserController");
 const router = express.Router();
 
-router.get("/getuserdetail",authMiddleware,GetUserDetail);
-router.post("/updateuserdetail",authMiddleware,UpdateUserDetail);
+router.get("/getallusers",authMiddleware,GetAllUsers);
+router.post("/adduser",authMiddleware,AddUser);
 
 
 module.exports = router;

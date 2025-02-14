@@ -1,39 +1,10 @@
 const mongoose = require("mongoose");
-const userSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    role: {
-      type: String,
-      required: true,
-    },
-    gender: {
-      type: String,
-    },
-    rollno: {
-      type: String,
-    },
-    classID: {
-      type: Number,
-    },
-    className: {
-      type: String,
-    },
-    university: {
-      type: String,
-    },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  { timestamps: true }
-);
 
-module.exports = mongoose.model("User", userSchema);
+const UserSchema = new mongoose.Schema({
+  userName: { type: String, required: true, trim: true },
+  age: { type: Number, required: true },
+  veteran: { type: Boolean, default: false },
+  childID: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Reference to Child Users
+});
+
+module.exports = mongoose.model("User", UserSchema);

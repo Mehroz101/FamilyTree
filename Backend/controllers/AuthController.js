@@ -1,21 +1,25 @@
+const Auth = require("../models/Auth");
 const User = require("../models/User"); // Use require for imports
 const jwt = require("jsonwebtoken"); // Example of another require
 const signup = async (req, res) => {
   try {
     console.log(req.body);
-    const { username, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
     if (password === confirmPassword) {
-      const isUserExits = await User.findOne({ username });
+      const isUserExits = await Auth.findOne({ email });
       if (isUserExits) {
         return res.status(400).send({
           success: false,
           message: "User already exists",
         });
       } else {
-        const user = new User({
-          username,
+        const previousUserID = await User.find().sort({ userID: -1 }).limit(1);
+        const userID = previousUserID.length > 0 ? previousUserID[0].userID + 1 : 1;
+
+        const user = new Auth({
+          email,
           password,
-          role: "STD",
+          userID,
         });
         await user.save();
         res.status(201).send({
@@ -40,7 +44,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { username, password, isAdmin = false } = req.body;
-    const user = await User.findOne({ username, isAdmin: isAdmin });
+    const user = await Auth.findOne({ username, isAdmin: isAdmin });
     if (user) {
       if (user.password === password) {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);

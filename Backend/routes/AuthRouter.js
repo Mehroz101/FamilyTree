@@ -37,7 +37,7 @@ const { login, signup } = require("../controllers/AuthController");
  *                   type: object
  */
 
-router.post("/signin", login);
+router.post("/login", login);
 /**
  * @swagger
  * /api/auth/signup:

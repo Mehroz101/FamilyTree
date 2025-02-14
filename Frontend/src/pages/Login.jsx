@@ -2,8 +2,9 @@ import { useState } from "react";
 import "../styles/Auth.css"; // Import the custom CSS file
 import CustomTextInput from "../components/FormComponents/CustomTextInput";
 import { useForm } from "react-hook-form";
-
-const Login = () => {
+import { useMutation } from "@tanstack/react-query";
+import { Login, Signup } from "../services/serviceApi";
+const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
 const method = useForm({
   defaultValues:{
@@ -12,6 +13,24 @@ const method = useForm({
     confirmPassword: ""
   }
 })
+const AuthMutation = useMutation({
+  mutationFn: (data)=>{
+    if(isLogin){
+      const sendData = {
+        email: data.email,
+        password: data.password
+      }
+      return Login(sendData)
+    }
+    else{
+      return Signup(data)
+    }
+  }
+})
+const onSubmit = (data)=>{
+  console.log("called")
+  AuthMutation.mutate(data)
+}
   return (
     <>
     <div className="login_page">
@@ -39,7 +58,7 @@ const method = useForm({
         <h2 className="login-title">{isLogin ? "Login" : "Register"}</h2>
 
         {/* Form */}
-        <form>
+        <form onSubmit={method.handleSubmit(onSubmit)}>
           <div className="input-group">
             <CustomTextInput
             control={method.control}
@@ -81,4 +100,4 @@ const method = useForm({
   );
 };
 
-export default Login;
+export default AuthPage;
