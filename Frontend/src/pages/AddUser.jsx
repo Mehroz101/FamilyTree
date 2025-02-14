@@ -4,6 +4,8 @@ import { FormColumn, FormRow } from '../components/layoutComponent';
 import CDropdown from '../components/FormComponents/CDropDown';
 import CustomTextInput from '../components/FormComponents/CustomTextInput';
 import "../styles/adduser.css";
+import { useMutation } from '@tanstack/react-query';
+import { AddNewUser } from '../services/serviceApi';
 
 const AddUser = () => {
     const { control, handleSubmit, setValue } = useForm({
@@ -22,10 +24,13 @@ const AddUser = () => {
     const handleAddRow = () => {
         append({ id: "", name: "", age: "", ventega: "" });
     };
-
+const AdduserMutation = useMutation({
+  mutationFn: AddNewUser
+})
     // Function to handle form submission
     const onSubmit = (data) => {
         console.log("Submitted Data:", data);
+        AdduserMutation.mutate(data)
     };
 
     return (

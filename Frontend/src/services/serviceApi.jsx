@@ -45,7 +45,7 @@ export const Signup =async (data)=>{
         }
     }
 }
-export const AddUser =async (data)=>{
+export const AddNewUser =async (data)=>{
     try {
         const token = localStorage.getItem("familytree") ;
         const config = {

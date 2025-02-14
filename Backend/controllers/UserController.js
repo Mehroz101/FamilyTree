@@ -26,35 +26,35 @@ const GetAllUsers = async (req, res) => {
 };
 
 // ✅ Add New User or Update Grandpa Relation
+
 const AddUser = async (req, res) => {
   try {
     console.log("Received Body:", req.body);
 
-    const { users, grandpaID } = req.body; // Corrected variable name
+    const { users, grandpaID } = req.body;
 
-    // Validate required fields
-    if (!users || !grandpaID) {
-      return res.status(400).send({ success: false, message: "Missing required fields" });
+    if (!users || !Array.isArray(users) || users.length === 0 || !grandpaID) {
+      return res.status(400).json({ success: false, message: "Missing or invalid required fields" });
     }
 
-    // Check if the user exists
+    if (!mongoose.Types.ObjectId.isValid(grandpaID)) {
+      return res.status(400).json({ success: false, message: "Invalid Grandpa ID" });
+    }
+
     let grandpa = await User.findById(grandpaID);
-
     if (!grandpa) {
-      return res.status(404).send({ success: false, message: "Grandpa user not found" });
+      return res.status(404).json({ success: false, message: "Grandpa user not found" });
     }
 
-    // Add new users as children (assuming users is an array of user objects)
     const newUsers = await User.insertMany(users);
 
-    // Update Grandpa user to reference new children
-    grandpa.childID = [...grandpa.childID, ...newUsers.map(user => user._id)];
+    grandpa.childID = [...(grandpa.childID || []), ...newUsers.map(user => user._id)];
     await grandpa.save();
 
-    res.status(201).send({ success: true, message: "Users added successfully", data: newUsers });
+    return res.status(201).json({ success: true, message: "Users added successfully", data: newUsers });
   } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).send({ success: false, message: error.message });
+    console.error("Error adding users:", error);
+    return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
   }
 };
 
