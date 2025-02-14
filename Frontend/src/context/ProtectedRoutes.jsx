@@ -5,7 +5,7 @@ const ProtectedRoute = ({ element }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("familytree");
     if (token) {
       setIsAuthenticated(true); // User is authenticated
     } else {

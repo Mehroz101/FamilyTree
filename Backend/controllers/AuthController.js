@@ -3,7 +3,6 @@ const User = require("../models/User"); // Use require for imports
 const jwt = require("jsonwebtoken"); // Example of another require
 const signup = async (req, res) => {
   try {
-    console.log(req.body);
     const { email, password, confirmPassword } = req.body;
     if (password === confirmPassword) {
       const isUserExits = await Auth.findOne({ email });
@@ -13,9 +12,8 @@ const signup = async (req, res) => {
           message: "User already exists",
         });
       } else {
-        const previousUserID = await User.find().sort({ userID: -1 }).limit(1);
-        const userID = previousUserID.length > 0 ? previousUserID[0].userID + 1 : 1;
-
+        const previousUserID = await Auth.find().sort({ userID: -1 });
+        const userID = previousUserID ? previousUserID[0].userID + 1 : 1;
         const user = new Auth({
           email,
           password,
@@ -43,8 +41,8 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { username, password, isAdmin = false } = req.body;
-    const user = await Auth.findOne({ username, isAdmin: isAdmin });
+    const { email, password} = req.body;
+    const user = await Auth.findOne({ email});
     if (user) {
       if (user.password === password) {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
@@ -53,7 +51,6 @@ const login = async (req, res) => {
           success: true,
           message: "User successfully logged in",
           token,
-          role: user.isAdmin,
         });
       } else {
         res.status(400).send({

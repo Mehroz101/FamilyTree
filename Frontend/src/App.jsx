@@ -1,6 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {
+  AddUser,
   Home,
   Layout,
   Login,
@@ -60,6 +61,7 @@ function AppRoutes() {
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path="/" element={<ProtectedRoute element={<Layout />} />}>
         <Route index element={<Home />} />
+        <Route path={ROUTES.ADDUSER} element={<AddUser />} />
       </Route>
     </Routes>
   );

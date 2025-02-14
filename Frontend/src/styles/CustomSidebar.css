@@ -8,9 +8,10 @@
 }
 .sidebar_items .sidebar_item{
   padding: 10px 0;
-  cursor: pointer;
   display: flex;
   align-items: center;
+  cursor: not-allowed;
+  color: white;
   gap: 10px;
 }
 .sidebar_items .sidebar_item svg{

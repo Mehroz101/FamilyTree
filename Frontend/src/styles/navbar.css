@@ -2,11 +2,15 @@
     background-color: #101A32;
     margin: 0;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding: 10px 50px;
     color: white;
     margin-top: 40px;
     border-radius: 4px;
+}
+.navbar .page_name{
+    font-weight: 600;
+    color: white;
 }
 .navbar .profile_box{
     display: flex;

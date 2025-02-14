@@ -25,6 +25,19 @@ const AuthMutation = useMutation({
     else{
       return Signup(data)
     }
+  },
+  onSuccess:(data)=>{
+    if(isLogin === false){
+      if(data.success){
+        setIsLogin(true)
+      }
+    }
+    else{
+      if(data.success){
+        localStorage.setItem("familytree", data.token)
+        window.location.href = "/"
+      }
+    }
   }
 })
 const onSubmit = (data)=>{
