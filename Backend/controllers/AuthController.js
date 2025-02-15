@@ -1,53 +1,42 @@
 const Auth = require("../models/Auth");
-const User = require("../models/User"); // Use require for imports
-const jwt = require("jsonwebtoken"); // Example of another require
+const User = require("../models/User"); 
+const jwt = require("jsonwebtoken"); 
+const bcrypt = require("bcryptjs");
 const signup = async (req, res) => {
   try {
     const { email, password, confirmPassword } = req.body;
-    console.log("Received signup request with body:", req.body);
 
-    if (password === confirmPassword) {
-      console.log("Passwords match. Checking if user exists...");
-      const isUserExists = await Auth.findOne({ email });
-
-      if (isUserExists) {
-        console.log("User already exists with email:", email);
-        return res.status(400).send({
-          success: false,
-          message: "User already exists",
-        });
-      } else {
-        console.log("User does not exist. Creating new user...");
-        const previousUserID = await Auth.find().sort({ userID: -1 });
-        console.log("preivous id: ", previousUserID);
-        let userID = 0;
-        if (previousUserID.length > 0) {
-          userID = previousUserID[0].userID + 1;
-        } else {
-          userID = 1;
-        }
-        console.log("Generated new userID:", userID);
-
-        const user = new Auth({
-          email,
-          password,
-          userID,
-        });
-        await user.save();
-        console.log("New user created and saved with email:", email);
-
-        res.status(201).send({
-          success: true,
-          message: "User successfully signed up",
-        });
-      }
-    } else {
-      console.log("Passwords do not match for email:", email);
-      res.status(400).send({
+    if (password !== confirmPassword) {
+      return res.status(400).send({
         success: false,
         message: "Password does not match",
       });
     }
+
+    const existingUser = await Auth.findOne({ email });
+    if (existingUser) {
+      return res.status(400).send({
+        success: false,
+        message: "User already exists",
+      });
+    }
+
+    const lastUser = await Auth.findOne().sort({ userID: -1 });
+    const nextUserID = (lastUser ? lastUser.userID : 0) + 1;
+
+    const hash = await bcrypt.hash(password, 10);
+    const user = new Auth({
+      email,
+      password: hash,
+      userID: nextUserID,
+    });
+
+    await user.save();
+
+    res.status(201).send({
+      success: true,
+      message: "User successfully signed up",
+    });
   } catch (error) {
     console.error("Error during signup process:", error.message);
     res.status(500).send({
@@ -62,7 +51,8 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await Auth.findOne({ email });
     if (user) {
-      if (user.password === password) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
 
         res.status(200).send({

@@ -4,6 +4,8 @@ import CustomTextInput from "../components/FormComponents/CustomTextInput";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { Login, Signup } from "../services/serviceApi";
+import { notify } from "../utils/notification";
+import { useNavigate } from "react-router-dom";
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
 const method = useForm({
@@ -13,6 +15,7 @@ const method = useForm({
     confirmPassword: ""
   }
 })
+const navigate = useNavigate();
 const AuthMutation = useMutation({
   mutationFn: (data)=>{
     if(isLogin){
@@ -26,22 +29,28 @@ const AuthMutation = useMutation({
       return Signup(data)
     }
   },
-  onSuccess:(data)=>{
-    if(isLogin === false){
-      if(data.success){
-        setIsLogin(true)
-      }
+
+  onSuccess: (response) => {
+  const { success, message, token } = response;
+  if (!isLogin) {
+    if (success) {
+      setIsLogin(true);
+      notify("success", "Registration successful");
+    } else {
+      notify("error", message);
     }
-    else{
-      if(data.success){
-        localStorage.setItem("familytree", data.token)
-        window.location.href = "/"
-      }
+  } else {
+    if (success) {
+      localStorage.setItem("familytree", token);
+      navigate("/");
+      notify("success", "User successfully logged in");
+    } else {
+      notify("error", message);
     }
   }
+}
 })
 const onSubmit = (data)=>{
-  console.log("called")
   AuthMutation.mutate(data)
 }
   return (
@@ -76,7 +85,7 @@ const onSubmit = (data)=>{
             <CustomTextInput
             control={method.control}
             name="email"
-            // label="Email"
+          type="email"
             placeholder="Enter your email"
             required={true}
             />
@@ -85,7 +94,7 @@ const onSubmit = (data)=>{
           <CustomTextInput
             control={method.control}
             name="password"
-            // label="Password"
+            type="password"
             placeholder="Enter your password"
             required={true}
             />
@@ -95,7 +104,7 @@ const onSubmit = (data)=>{
           <CustomTextInput
             control={method.control}
             name="confirmPassword"
-            // label="Confirm Password"
+            type="password"
             placeholder="Confirm your password"
             required={true}
             />          </div>

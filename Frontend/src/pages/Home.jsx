@@ -28,8 +28,7 @@ const Home = () => {
 
   useEffect(() => {
     if (userdata) {
-          console.log("Fetched Data:", userdata.data); // Debugging output
-
+      console.log("Fetched Data:", userdata.data); // Debugging output
       setUserData(userdata.data);
     }
   }, [userdata]);
@@ -43,18 +42,40 @@ const Home = () => {
     });
   };
 
+  // Recursive search function
+  const filterUsers = (users, searchTerm) => {
+    return users
+      .map((user) => {
+        const matchesUser =
+          user.name.toLowerCase().includes(searchTerm) ||
+          user.age.toString().includes(searchTerm) ||
+          user.veteran.toLowerCase().includes(searchTerm);
+
+        const filteredChildren = filterUsers(user.children || [], searchTerm);
+
+        if (matchesUser || filteredChildren.length > 0) {
+          return { ...user, children: filteredChildren };
+        }
+
+        return null;
+      })
+      .filter(Boolean);
+  };
+
+  const filteredData = filterUsers(userData, searchTerm);
+
   // Render rows with expandable functionality
   const renderRows = (items, level = 0) => {
-    return items.map((item) => (
+    return items?.map((item) => (
       <React.Fragment key={item.id}>
         <tr>
           <td>
+            <span style={{ marginLeft: `${level * 20}px` }}>{item.id}</span>
             {item?.children && item.children.length > 0 && (
               <span className="expand_icon" onClick={() => toggleRow(item.id)}>
                 {expandedRows[item.id] ? "▼" : "▶"}
               </span>
             )}
-            <span style={{ marginLeft: `${level * 20}px` }}>{item.id}</span>
           </td>
           <td>{item.name}</td>
           <td>{item.age}</td>
@@ -65,16 +86,12 @@ const Home = () => {
     ));
   };
 
-  const filteredData = userData.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm)
-  );
-
   return (
     <div className="home_page">
       <div className="search_bar">
         <FormRow>
-          <FormColumn className="flex justify-content-end w-full">
-            <CustomTextInput control={control} name="searchTerm" placeholder="Search..." />
+          <FormColumn xl={12} lg={12} md={12} sm={12} xs={12} className="flex justify-content-end w-full">
+            <CustomTextInput control={control} name="searchTerm" placeholder="Search..."/>
           </FormColumn>
         </FormRow>
         <FormRow>

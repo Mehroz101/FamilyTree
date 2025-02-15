@@ -2,6 +2,9 @@
 .sidebar{
   padding: 40px 40px;
 }
+.sidebar .close_icon{
+  display: none;
+}
 .sidebar .sidebar_header .sidebar_logo{
   font-size: 24px;
   line-height: 36px;
@@ -22,4 +25,21 @@
 .sidebar_items .sidebar_item span{
   font-size: 16px;
   line-height: 24px;
+}
+@media screen and (max-width: 650px) {
+  .sidebar{
+    display: none !important;
+  }
+  .sidebar.visible{
+    display: block !important;
+    position: absolute;
+    width: 100%;
+    background-color: #101A32;
+    height: 100%;
+    z-index: 100;
+  }
+  .sidebar .close_icon{
+    display: block;
+    text-align: right;
+  }
 }

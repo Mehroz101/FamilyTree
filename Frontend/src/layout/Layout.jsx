@@ -20,10 +20,12 @@ const Layout = () => {
     <div className="root_layout">
 
       <div className="sidebar_components">
-        <CustomSidebar visible={visible} onHide={() => setVisible(false)} />
+        <CustomSidebar visible={visible} onHide={() =>{
+          setVisible(false)}} />
       </div>
       <div className="right_components">
-        <Navbar visible={visible} pagename={pagename} onShow={() => setVisible(true)} />
+        <Navbar visible={visible} pagename={pagename} onShow={() => {
+          setVisible(true)}} />
         <div className="p-5 outlet_component">
           <Outlet />
         </div>

@@ -16,7 +16,7 @@ export const Login =async (data)=>{
     } catch (error) {
         return {
             success:false,
-            message:error.message
+            message:error.response.data.message
         }
     }
 }
@@ -29,8 +29,9 @@ export const Signup =async (data)=>{
             },
         }
         const response =await axios.post(`${url}/auth/signup`, data,config);
+        console.log(response.data)
         if(response.data.success){
-            console.log(response.data)
+            console.log("success")
             return response.data
         }
         else{
@@ -39,9 +40,10 @@ export const Signup =async (data)=>{
                 message:response.data.message}
         }
     } catch (error) {
+        console.log(error.message)
         return {
             success:false,
-            message:error.message
+            message:error.response.data.message
         }
     }
 }
@@ -65,7 +67,7 @@ export const AddNewUser =async (data)=>{
     } catch (error) {
         return {
             success:false,
-            message:error.message
+            message:error.response.data.message
         }
     }
 }
@@ -89,7 +91,7 @@ export const getAllUsers =async (data)=>{
     } catch (error) {
         return {
             success:false,
-            message:error.message
+            message:error.response.data.message
         }
     }
 }
@@ -114,7 +116,7 @@ export const getUserDropdown =async (data)=>{
     } catch (error) {
         return {
             success:false,
-            message:error.message
+            message:error.response.data.message
         }
     }
 }

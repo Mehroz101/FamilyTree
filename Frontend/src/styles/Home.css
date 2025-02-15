@@ -3,11 +3,14 @@
     display: flex;
     justify-content: center;
     margin-top: 20px;
+    min-width: 200px;
+    overflow-x: auto;
   }
   
   .user_table {
  width: 100%;
     border-collapse: collapse;
+    overflow-x: auto;
   }
   
   .user_table th, 

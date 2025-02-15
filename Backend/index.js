@@ -33,7 +33,7 @@ const options = {
 const swaggerSpec = swaggerDocument(options);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/api/auth", AuthRouter); // Make sure this is correctly set up
+app.use("/api/auth", AuthRouter);
 app.use("/api/user", UserRouter);
 connectDB();
 app.listen(PORT, () => {

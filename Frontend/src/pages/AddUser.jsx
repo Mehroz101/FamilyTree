@@ -6,41 +6,54 @@ import CustomTextInput from '../components/FormComponents/CustomTextInput';
 import "../styles/adduser.css";
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AddNewUser, getUserDropdown } from '../services/serviceApi';
-
-const AddUser = () => {
-    const [userData,setUserData] = useState([]);
-    const { control, handleSubmit, setValue } = useForm({
+import { notify } from '../utils/notification';
+import { useNavigate } from 'react-router-dom';
+const AddUserPage = () => {
+    const [grandpas, setGrandpas] = useState([]);
+    const { control, handleSubmit, setValue, reset } = useForm({
         defaultValues: {
-            grandpaID: null,
-            children: [{ id: "", name: "", age: "", ventega: "" }], // Default child row
+            grandpaId: null,
+            children: [{ id: "", name: "", age: "", ventega: "" }],
         }
     });
-
-    const { fields, append } = useFieldArray({
+    const navigate = useNavigate();
+    const { fields, append, remove } = useFieldArray({
         control,
         name: "children"
     });
 
-    // Function to add a new row
     const handleAddRow = () => {
         append({ id: "", name: "", age: "", ventega: "" });
     };
-const AdduserMutation = useMutation({
-  mutationFn: AddNewUser
-})
-    // Function to handle form submission
+
+    const addNewUserMutation = useMutation({
+        mutationFn: AddNewUser,
+        onSuccess: (data) => {
+            if (data.success) {
+                notify("success", data.message);
+                reset();
+                navigate("/");
+            } else {
+                notify("error", data.message);
+            }
+        }
+    });
+
     const onSubmit = (data) => {
-        console.log("Submitted Data:", data);
-        AdduserMutation.mutate(data)
+        addNewUserMutation.mutate(data);
     };
-    const {data} = useQuery({
-        queryKey:["userData"],
-        queryFn:getUserDropdown
-    })
-useEffect(()=>{
-    if(data)
-    setUserData(data?.data)
-},[data])
+
+    const { data } = useQuery({
+        queryKey: ["grandpas"],
+        queryFn: getUserDropdown
+    });
+
+    useEffect(() => {
+        if (data) {
+            setGrandpas(data.data);
+        }
+    }, [data]);
+
     return (
         <div className="add_user_page">
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -49,13 +62,13 @@ useEffect(()=>{
                     <FormColumn xl={3} lg={3} md={4} sm={12} xs={12}>
                         <CDropdown
                             control={control}
-                            name="grandpaID"
+                            name="grandpaId"
                             label="Grandpa ID"
                             optionLabel="name"
-                            optionValue="userID"
+                            optionValue="userId"
                             placeholder="Select Grandpa ID"
-                            onChange={(e) => setValue("grandpaID", e.value)}
-                            options={userData ?? []}
+                            onChange={(e) => setValue("grandpaId", e.value)}
+                            options={grandpas}
                         />
                     </FormColumn>
                 </FormRow>
@@ -63,7 +76,7 @@ useEffect(()=>{
                 <div className="form_rows">
                     {/* Render Child Rows */}
                     {fields.map((field, index) => (
-                        <ChildRow key={field.id} control={control} index={index} />
+                        <ChildRow key={field.id} control={control} index={index} remove={remove} />
                     ))}
 
                     {/* Add Children Button */}
@@ -88,7 +101,7 @@ useEffect(()=>{
 };
 
 // **Child Row Component**
-const ChildRow = ({ control, index }) => {
+const ChildRow = ({ control, index, remove }) => {
     return (
         <FormRow>
             <FormColumn xl={2} lg={2} md={4} sm={12} xs={12}>
@@ -103,8 +116,13 @@ const ChildRow = ({ control, index }) => {
             <FormColumn xl={3} lg={3} md={4} sm={12} xs={12}>
                 <CustomTextInput control={control} name={`children[${index}].ventega`} required={true} label="Ventega" placeholder="Enter Yes/No" />
             </FormColumn>
+            <FormColumn xl={2} lg={2} md={4} sm={12} xs={12}>
+                <button type="button" className="removebtn" onClick={() => remove(index)}>
+                    Remove
+                </button>
+            </FormColumn>
         </FormRow>
     );
 };
 
-export default AddUser;
+export default AddUserPage;

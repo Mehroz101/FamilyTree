@@ -19,3 +19,17 @@
 .add_user_page .form_rows .btn.addbtn{
   margin-top: 10px;
 }
+.removebtn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 13px 25px;
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    background-color: #101A32;
+    border-radius: 4px;
+    margin-top: 10px;
+}

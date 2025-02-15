@@ -1,35 +1,5 @@
 const User = require("../models/User");
 
-// ✅ Get User Details
-const GetAllUsers = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const user = await User.findById(userId).populate("childID"); // If childID is an ObjectId reference
-
-    if (!user) {
-      return res
-        .status(404)
-        .send({ success: false, message: "User not found" });
-    }
-
-    const sendData = {
-      id: user._id,
-      name: user.name,
-      age: user.age,
-      veteran: user.veteran,
-      childID: user.childIDs, // Ensure this exists in schema
-    };
-
-    res.status(200).send({ success: true, message: "", data: sendData });
-  } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).send({ success: false, message: error.message });
-  }
-};
-
-// ✅ Add New User or Update Grandpa Relation
-// const lastUser = await User.findOne().sort({ userID: -1 }).select("userID");
-// let nextUserID = lastUser && lastUser.userID ? Number(lastUser.userID) + 1 : 1; // Start from 1 if no users exist
 
 const AddUser = async (req, res) => {
   try {
@@ -43,9 +13,8 @@ const AddUser = async (req, res) => {
         .send({ success: false, message: "Children array is required" });
     }
 
-    // Find the highest userID
     const lastUser = await User.findOne().sort({ userID: -1 }).select("userID");
-    let nextUserID = lastUser ? lastUser.userID + 1 : 1; // Start from 1 if no users exist
+    let nextUserID = lastUser ? lastUser.userID + 1 : 1;
 
     let parentUser = null;
     if (grandpaID !== null) {
@@ -115,10 +84,8 @@ const GetUserDropDown = async (req, res) => {
 };
 const getUsersTree = async (req, res) => {
   try {
-      // Fetch all users from the database
-      const users = await User.find();
-
-      // Convert users into a map (userID as key)
+    const createrID  = req.user.id;
+      const users = await User.find({createrID:createrID});
       const userMap = new Map();
       users.forEach(user => {
           userMap.set(user.userID, { 
@@ -126,18 +93,15 @@ const getUsersTree = async (req, res) => {
               name: user.name, 
               age: user.age, 
               veteran: user.ventega, 
-              children: [] // Initialize empty array for children
+              children: []
           });
       });
 
-      // Build the hierarchical tree
       let tree = [];
       users.forEach(user => {
           if (user.parentID && userMap.has(user.parentID)) {
-              // If the user has a parent, push it into the parent's children array
               userMap.get(user.parentID).children.push(userMap.get(user.userID));
           } else {
-              // If no parent, it's a root-level user
               tree.push(userMap.get(user.userID));
           }
       });
@@ -149,4 +113,4 @@ const getUsersTree = async (req, res) => {
   }
 };
 
-module.exports = { AddUser, GetAllUsers,GetUserDropDown,getUsersTree };
+module.exports = { AddUser,GetUserDropDown,getUsersTree };

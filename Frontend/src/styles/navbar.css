@@ -3,10 +3,17 @@
     margin: 0;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px 50px;
     color: white;
     margin-top: 40px;
     border-radius: 4px;
+}
+.navbar .icon{
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    display: none;
 }
 .navbar .page_name{
     font-weight: 600;
@@ -27,4 +34,13 @@
 .navbar .profile_box .user_name{
     font-weight: 600;
     font-size: 16px;
+}
+@media screen and (max-width: 650px) {
+    
+    .navbar .icon{
+        display: block;
+    }
+    .navbar .page_name{
+       display: none;
+    }
 }

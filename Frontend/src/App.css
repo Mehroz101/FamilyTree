@@ -7,7 +7,7 @@
     height: 100vh;
 }
 .right_components{
-    width: 80%;
+    width: 100%;
     margin: 0 20px;
      display: flex;
 flex-direction: column;
@@ -20,4 +20,18 @@ gap: 20px;
 }
 .outlet_component{
     height: 100%;
+}
+@media screen and (max-width: 650px) {
+   
+    .navbar .icon{
+        display: block;
+    }
+    .root_layout{
+        width: 100%;
+        gap: 0;
+    }
+    .right_components{
+        width: 100%;
+        margin: 0;
+    }
 }
